@@ -12,7 +12,7 @@ export default createMuiTheme({
     type: 'dark'
   },
   spacing: {
-    unit: 10
+    unit: 8
   },
   props: {
     MuiWithWidth: {

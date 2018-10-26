@@ -1,18 +1,21 @@
 import React from 'react'
-import { renderToString } from 'react-dom/server'
 import { SheetsRegistry } from 'react-jss/lib/jss'
 import JssProvider from 'react-jss/lib/JssProvider'
-import {
-  MuiThemeProvider, createGenerateClassName
-} from '@material-ui/core/styles'
+import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles'
 import express from 'express'
 import reload from 'reload'
-import App from './Components/App'
 import theme from './theme'
+import { renderRoutes } from 'react-router-config'
+import Routes from './routes'
+
+import { ApolloProvider, renderToStringWithData } from 'react-apollo'
+import { ApolloClient } from 'apollo-client'
+import 'isomorphic-unfetch'
+import { createHttpLink } from 'apollo-link-http'
+import { StaticRouter } from 'react-router'
+import { InMemoryCache } from 'apollo-cache-inmemory'
 
 const app = express()
-
-const port = 3000
 const dev = process.env.NODE_ENV === 'development'
 
 app.use(express.static('public'))
@@ -22,41 +25,64 @@ if (dev) {
 }
 
 app.use((req, res) => {
+
+  const client = new ApolloClient({
+    ssrMode: true,
+    link: createHttpLink({
+      uri: 'https://api-euwest.graphcms.com/v1/cjnojq5g23yy201ijugba5zfq/master',
+      // credentials: 'same-origin',
+      // headers: {
+      //   cookie: req.header('Cookie'),
+      // },
+    }),
+    cache: new InMemoryCache(),
+  })
+
+  const context = {}
+
   const sheetsRegistry = new SheetsRegistry()
 
   const generateClassName = createGenerateClassName()
 
   const sheetsManager = new Map()
 
-  const html = renderToString(
-    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-      <MuiThemeProvider theme={theme} sheetsManager={sheetsManager}>
-        <App />
-      </MuiThemeProvider>
-    </JssProvider>
+  
+
+  renderToStringWithData(
+    <ApolloProvider client={client}>
+      <StaticRouter location={req.url} context={context}>
+        <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+          <MuiThemeProvider theme={theme} sheetsManager={sheetsManager}>
+            {renderRoutes(Routes)}
+          </MuiThemeProvider>
+        </JssProvider>
+      </StaticRouter>
+    </ApolloProvider>
   )
-
-  const css = sheetsRegistry.toString()
-
-  res.send(`
-    <!DOCTYPE html>
-    <html lang='en'>
-
-    <head>
-      <meta charset='utf-8'>
-      <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
-      <title>React App</title>
-      <style id='jss-styles'>${css}</style>
-    </head>
-
-    <body>
-      <div id='root'>${html}</div>
-      <script src='main.js' async></script>
-      ${dev ? `<script src='/reload/reload.js' async></script>` : ''}
-    </body>
-
-    </html>
-  `)
+  .then(html => {
+    const css = sheetsRegistry.toString()
+    res.status(200)
+    res.send(`
+      <!DOCTYPE html>
+      <html lang='en'>
+        <head>
+          <meta charset='utf-8'>
+          <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+          <title>React App</title>
+          <style id='jss-styles'>${css}</style>
+        </head>
+        <body>
+          <div id='root'>${html}</div>
+          <script>
+            window.__APOLLO_STATE__=${JSON.stringify(client.cache.extract())}
+          </script>
+          <script src='main.js' async></script>
+          ${dev ? `<script src='/reload/reload.js' async></script>` : ''}
+        </body>
+      </html>
+    `)
+    res.end()
+  })
 })
 
-app.listen(port, () => console.log(`http://localhost:${port}`))
+app.listen(3000, () => console.log(`http://localhost:3000`))

@@ -4,18 +4,28 @@
   "license": "MIT",
   "main": "dist/main.js",
   "scripts": {
-    "start": "node dist/main",
-    "watch": "webpack --mode development --watch & nodemon dist/main",
-    "dev": "rd dist public && webpack --mode development --progress",
+    "start": "nodemon dist/main",
+    "watch": "webpack --mode development --watch",
+    "dev": "rm -rf dist public && webpack --mode development --progress",
     "build": "rm -rf dist public && webpack --mode production --progress",
     "stats": "webpack --profile --json > stats.json && webpack-bundle-analyzer stats.json dist"
   },
   "dependencies": {
     "@material-ui/core": "^3.1.0",
     "@material-ui/icons": "^3.0.1",
+    "apollo-cache-inmemory": "^1.3.6",
+    "apollo-client": "^2.4.3",
+    "apollo-link-http": "^1.5.5",
     "express": "^4.16.3",
+    "graphql": "^14.0.2",
+    "graphql-tag": "^2.10.0",
+    "isomorphic-unfetch": "^3.0.0",
     "react": "^16.5.2",
-    "react-dom": "^16.5.2"
+    "react-apollo": "^2.2.4",
+    "react-dom": "^16.5.2",
+    "react-router": "^4.3.1",
+    "react-router-config": "^4.4.0-beta.1",
+    "react-router-dom": "^4.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.1.0",
