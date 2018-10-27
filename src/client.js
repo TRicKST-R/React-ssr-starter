@@ -8,35 +8,24 @@ import { renderRoutes } from 'react-router-config'
 import routes from './routes'
 import { ApolloProvider, Query } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
-import { createHttpLink } from 'apollo-link-http'
+import { BatchHttpLink } from 'apollo-link-batch-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-
-import ggl from 'graphql-tag'
 
 const generateClassName = createGenerateClassName()
 
-const client = new ApolloClient({
-  link: createHttpLink({
-    uri: 'https://api-euwest.graphcms.com/v1/cjnojq5g23yy201ijugba5zfq/master',
-  }),
-  cache: new InMemoryCache(),
+const link = new BatchHttpLink({
+  uri: 'https://api-euwest.graphcms.com/v1/cjnojq5g23yy201ijugba5zfq/master',
+  batchMax: 10,
+  batchInterval: 10
 })
 
-// const test = ggl`
-//   {
-//     posts {
-//       id
-//       title
-//       body
-//     }
-//   }
-// `
+const client = new ApolloClient({
+  ssrMode: true,
+  link,
+  cache: new InMemoryCache().restore(window.__APOLLO_STATE__)
+})
 
-// client.query({
-//   query: test
-// }).then(res => console.log(res))
-
-hydrate(
+hydrate( // we use hydrate instead render for using server-side-rendered dom on the client-side
   <ApolloProvider client={client}>
     <JssProvider generateClassName={generateClassName}>
       <MuiThemeProvider theme={theme}>
@@ -48,6 +37,6 @@ hydrate(
   </ApolloProvider>,
   document.getElementById('root'),
   () => {
-    document.getElementById('jss-styles').remove()
+    document.getElementById('jss-styles').remove() // after client-side react rendered, we must delete server-side-rendered styles for using client dynamic styles
   }
 )

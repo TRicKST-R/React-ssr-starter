@@ -3,14 +3,14 @@ import { SheetsRegistry } from 'react-jss/lib/jss'
 import JssProvider from 'react-jss/lib/JssProvider'
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles'
 import express from 'express'
-import reload from 'reload'
+import reload from 'reload' // for hot-reloading in DEV
 import theme from './theme'
 import { renderRoutes } from 'react-router-config'
 import Routes from './routes'
 
 import { ApolloProvider, renderToStringWithData } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
-import 'isomorphic-unfetch'
+import 'isomorphic-unfetch' // polyfill for fix node global fetch bug
 import { createHttpLink } from 'apollo-link-http'
 import { StaticRouter } from 'react-router'
 import { InMemoryCache } from 'apollo-cache-inmemory'
@@ -20,7 +20,7 @@ const dev = process.env.NODE_ENV === 'development'
 
 app.use(express.static('public'))
 
-if (dev) {
+if (dev) { // id DEV enable hot-reloading
   reload(app)
 }
 
@@ -29,26 +29,20 @@ app.use((req, res) => {
   const client = new ApolloClient({
     ssrMode: true,
     link: createHttpLink({
-      uri: 'https://api-euwest.graphcms.com/v1/cjnojq5g23yy201ijugba5zfq/master',
-      // credentials: 'same-origin',
-      // headers: {
-      //   cookie: req.header('Cookie'),
-      // },
+      uri: 'YOUR_GRAPHQL_LINK'
     }),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache()
   })
 
-  const context = {}
+  const context = {} // this object will contain result of the render after rendering
 
-  const sheetsRegistry = new SheetsRegistry()
+  const sheetsRegistry = new SheetsRegistry() 
 
   const generateClassName = createGenerateClassName()
 
   const sheetsManager = new Map()
 
-  
-
-  renderToStringWithData(
+  renderToStringWithData( // apollo render to string current route with data from graphql
     <ApolloProvider client={client}>
       <StaticRouter location={req.url} context={context}>
         <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
@@ -60,7 +54,7 @@ app.use((req, res) => {
     </ApolloProvider>
   )
   .then(html => {
-    const css = sheetsRegistry.toString()
+    const css = sheetsRegistry.toString() // after render we have completly css string
     res.status(200)
     res.send(`
       <!DOCTYPE html>
@@ -85,4 +79,4 @@ app.use((req, res) => {
   })
 })
 
-app.listen(3000, () => console.log(`http://localhost:3000`))
+app.listen(3000, () => console.log('http://localhost:3000'))

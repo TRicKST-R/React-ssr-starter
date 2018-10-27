@@ -6,8 +6,8 @@
   "scripts": {
     "start": "nodemon dist/main",
     "watch": "webpack --mode development --watch",
-    "dev": "rm -rf dist public && webpack --mode development --progress",
-    "build": "rm -rf dist public && webpack --mode production --progress",
+    "dev": "RD /S /Q dist public && webpack --mode development --progress",
+    "build": "RD /S /Q dist public && webpack --mode production --progress",
     "stats": "webpack --profile --json > stats.json && webpack-bundle-analyzer stats.json dist"
   },
   "dependencies": {
@@ -15,10 +15,10 @@
     "@material-ui/icons": "^3.0.1",
     "apollo-cache-inmemory": "^1.3.6",
     "apollo-client": "^2.4.3",
+    "apollo-link-batch-http": "^1.2.3",
     "apollo-link-http": "^1.5.5",
     "express": "^4.16.3",
     "graphql": "^14.0.2",
-    "graphql-anywhere": "^4.1.20",
     "graphql-tag": "^2.10.0",
     "isomorphic-unfetch": "^3.0.0",
     "react": "^16.5.2",

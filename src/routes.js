@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import App from './Components/App'
 import Home from './Components/Home'
 
@@ -8,7 +8,7 @@ const NotFoundPage = () => (
 
 const routes = [
 	{
-		component: App,
+		component: App, // root component, it's can contain for example Header and Footer
 		routes: [
 			{
 				path: '/',
@@ -25,4 +25,4 @@ const routes = [
 	}
 ]
   
-export default routes;
+export default routes
