@@ -14,7 +14,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 const generateClassName = createGenerateClassName()
 
 const link = new BatchHttpLink({
-  uri: 'https://api-euwest.graphcms.com/v1/cjnojq5g23yy201ijugba5zfq/master',
+  uri: 'YOUR_GRAPHQL_LINK',
   batchMax: 10,
   batchInterval: 10
 })
