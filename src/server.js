@@ -20,7 +20,7 @@ const dev = process.env.NODE_ENV === 'development'
 
 app.use(express.static('public'))
 
-if (dev) { // id DEV enable hot-reloading
+if (dev) { // enable hot-reloading id DEV
   reload(app)
 }
 
@@ -34,7 +34,7 @@ app.use((req, res) => {
     cache: new InMemoryCache()
   })
 
-  const context = {} // this object will contain result of the render after rendering
+  const context = {} // this object for router will contain result of the render after rendering
 
   const sheetsRegistry = new SheetsRegistry() 
 
